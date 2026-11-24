@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EarnPulse Admin</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f1f4f9;color:#17233c;font-family:Arial,sans-serif}
+header{background:#102c55;color:white;padding:22px}
+header h1{color:#42e6ad;margin:0}
+main{max-width:950px;margin:25px auto;padding:14px}
+.card{background:white;padding:20px;border-radius:13px;margin-bottom:17px;box-shadow:0 3px 12px #0001}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.stat{background:#102c55;color:white;padding:17px;border-radius:12px}
+.stat strong{display:block;font-size:25px;color:#42e6ad;margin-top:10px}
+table{width:100%;border-collapse:collapse;min-width:420px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #e2e8f0}
+.tablewrap{overflow-x:auto}
+button{background:#087bdb;color:white;border:0;padding:11px 16px;border-radius:7px;font-weight:bold}
+.secondary{background:#64748b}
+.warning{background:#fff4d6;padding:14px;border-radius:9px;color:#765000}
+@media(min-width:650px){.stats{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h1>EarnPulse</h1>
+<p>Administrator Dashboard · Demo Mode</p>
+</header>
+<main>
+<div class="warning">
+<strong>Demo administrator panel</strong><br>
+This page is not password-protected. Browser data is not secure and is visible only on this device and browser. Do not use it to manage real members or money.
+</div>
+
+<div class="card">
+<h2>Platform overview</h2>
+<div class="stats">
+<div class="stat">Members<strong id="members">0</strong></div>
+<div class="stat">Surveys completed<strong id="surveys">0</strong></div>
+<div class="stat">Credits issued<strong id="credits">0</strong></div>
+<div class="stat">Active profiles<strong id="active">0</strong></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Registered demo members</h2>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Name</th><th>Username</th><th>Balance</th><th>Completed</th></tr></thead>
+<tbody id="memberRows"></tbody>
+</table>
+</div>
+<p id="empty"></p>
+<button onclick="refresh()">Refresh dashboard</button>
+<button class="secondary" onclick="downloadCSV()">Export CSV</button>
+</div>
+
+<div class="card">
+<h2>Platform information</h2>
+<p>Platform: EarnPulse</p>
+<p>Mode: Demonstration</p>
+<p>Payment integration: Not connected</p>
+<p>Member data source: Local browser storage</p>
+</div>
+</main>
+<script>
+function getMembers(){
+try{return JSON.parse(localStorage.getItem("earnpulse_demo_members_v2")||"{}")}
+catch(e){return {}}
+}
+function refresh(){
+const data=getMembers();
+const users=Object.entries(data);
+let total=0,completed=0;
+const rows=document.getElementById("memberRows");
+rows.innerHTML="";
+users.forEach(([username,m])=>{
+const balance=Number(m.balance)||0;
+const count=Array.isArray(m.completed)?m.completed.length:0;
+total+=balance;
+completed+=count;
+const tr=document.createElement("tr");
+[ m.name||"Unnamed",username,"KSh "+balance,count ].forEach(value=>{
+const td=document.createElement("td");
+td.textContent=value;
+tr.appendChild(td);
+});
+rows.appendChild(tr);
+});
+document.getElementById("members").textContent=users.length;
+document.getElementById("active").textContent=users.length;
+document.getElementById("surveys").textContent=completed;
+document.getElementById("credits").textContent="KSh "+total;
+document.getElementById("empty").textContent=users.length?"":"No demo members found in this browser.";
+}
+function downloadCSV(){
+const users=getMembers();
+const rows=[["Name","Username","Demo balance","Surveys completed"]];
+Object.entries(users).forEach(([username,m])=>{
+rows.push([m.name||"",username,m.balance||0,(m.completed||[]).length]);
+});
+const csv=rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n");
+const blob=new Blob([csv],{type:"text/csv"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;a.download="earnpulse-demo-members.csv";a.click();
+URL.revokeObjectURL(url);
+}
+refresh();
+</script>
+</body>
+</html>
