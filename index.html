@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EarnPulse | Survey Rewards</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#17233c}
+header{background:#102c55;color:white;padding:24px 18px}
+header h1{margin:0;color:#42e6ad}
+header p{margin-bottom:0}
+main{max-width:850px;margin:25px auto;padding:15px}
+.card{background:white;padding:20px;border-radius:15px;margin-bottom:16px;box-shadow:0 3px 15px #0000000c}
+.balance{background:#102c55;color:white}
+.amount{font-size:32px;font-weight:bold;color:#42e6ad}
+button{background:#087bdb;color:white;border:0;padding:12px 18px;border-radius:8px;font-weight:bold}
+input{padding:12px;width:100%;margin:8px 0;border:1px solid #ccd4e0;border-radius:8px}
+.survey{border:1px solid #e1e7ef;padding:15px;border-radius:10px;margin:12px 0}
+small{color:#66748a}
+</style>
+</head>
+<body>
+<header>
+<h1>EarnPulse</h1>
+<p>Your time. Your opinions. Your rewards.</p>
+</header>
+<main>
+<div class="card balance">
+<h2>My demo balance</h2>
+<div class="amount" id="balance">KSh 0</div>
+<small style="color:white">Fictional credits for testing only</small>
+</div>
+
+<div class="card">
+<h2>Available surveys</h2>
+<div class="survey">
+<h3>Technology habits</h3>
+<p>Tell us about your use of technology.</p>
+<p><b>KSh 50 demo credits</b> · 5 minutes</p>
+<button onclick="complete(50,this)">Complete survey</button>
+</div>
+<div class="survey">
+<h3>Shopping preferences</h3>
+<p>Share your general shopping preferences.</p>
+<p><b>KSh 30 demo credits</b> · 3 minutes</p>
+<button onclick="complete(30,this)">Complete survey</button>
+</div>
+<div class="survey">
+<h3>Education experience</h3>
+<p>Share your views about learning.</p>
+<p><b>KSh 40 demo credits</b> · 4 minutes</p>
+<button onclick="complete(40,this)">Complete survey</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Demo withdrawal request</h2>
+<p>This only simulates a request. No money is transferred.</p>
+<input id="phone" placeholder="Example: 07XXXXXXXX">
+<input id="withdraw" type="number" placeholder="Amount in demo credits">
+<button onclick="requestWithdrawal()">Submit demo request</button>
+<p id="message"></p>
+</div>
+<div class="card">
+<h2>About EarnPulse</h2>
+<p>EarnPulse is a survey-rewards platform prototype. Real survey partnerships, verified rewards, privacy safeguards and legal approvals must be established before launching real transactions.</p>
+</div>
+</main>
+<script>
+let balance=0;
+const completed=new Set();
+function complete(amount,button){
+if(completed.has(button.parentElement.querySelector('h3').textContent)){
+alert("This demo survey has already been completed.");
+return;
+}
+completed.add(button.parentElement.querySelector('h3').textContent);
+balance+=amount;
+document.getElementById('balance').textContent="KSh "+balance;
+button.textContent="Completed";
+button.disabled=true;
+}
+function requestWithdrawal(){
+const phone=document.getElementById('phone').value.trim();
+const amount=Number(document.getElementById('withdraw').value);
+const message=document.getElementById('message');
+if(!/^07\d{8}$/.test(phone)){
+message.textContent="Enter a valid demo phone number beginning with 07.";
+return;
+}
+if(!Number.isFinite(amount)||amount<=0||amount>balance){
+message.textContent="Enter an amount within your demo balance.";
+return;
+}
+message.textContent="Demo request recorded. No real payment has been made.";
+}
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EarnPulse | Survey Rewards</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#17233c}
+header{background:#102c55;color:white;padding:24px 18px}
+header h1{margin:0;color:#42e6ad}
+header p{margin-bottom:0}
+main{max-width:850px;margin:25px auto;padding:15px}
+.card{background:white;padding:20px;border-radius:15px;margin-bottom:16px;box-shadow:0 3px 15px #0000000c}
+.balance{background:#102c55;color:white}
+.amount{font-size:32px;font-weight:bold;color:#42e6ad}
+button{background:#087bdb;color:white;border:0;padding:12px 18px;border-radius:8px;font-weight:bold}
+input{padding:12px;width:100%;margin:8px 0;border:1px solid #ccd4e0;border-radius:8px}
+.survey{border:1px solid #e1e7ef;padding:15px;border-radius:10px;margin:12px 0}
+small{color:#66748a}
+</style>
+</head>
+<body>
+<header>
+<h1>EarnPulse</h1>
+<p>Your time. Your opinions. Your rewards.</p>
+</header>
+<main>
+<div class="card balance">
+<h2>My demo balance</h2>
+<div class="amount" id="balance">KSh 0</div>
+<small style="color:white">Fictional credits for testing only</small>
+</div>
+
+<div class="card">
+<h2>Available surveys</h2>
+<div class="survey">
+<h3>Technology habits</h3>
+<p>Tell us about your use of technology.</p>
+<p><b>KSh 50 demo credits</b> · 5 minutes</p>
+<button onclick="complete(50,this)">Complete survey</button>
+</div>
+<div class="survey">
+<h3>Shopping preferences</h3>
+<p>Share your general shopping preferences.</p>
+<p><b>KSh 30 demo credits</b> · 3 minutes</p>
+<button onclick="complete(30,this)">Complete survey</button>
+</div>
+<div class="survey">
+<h3>Education experience</h3>
+<p>Share your views about learning.</p>
+<p><b>KSh 40 demo credits</b> · 4 minutes</p>
+<button onclick="complete(40,this)">Complete survey</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Demo withdrawal request</h2>
+<p>This only simulates a request. No money is transferred.</p>
+<input id="phone" placeholder="Example: 07XXXXXXXX">
+<input id="withdraw" type="number" placeholder="Amount in demo credits">
+<button onclick="requestWithdrawal()">Submit demo request</button>
+<p id="message"></p>
+</div>
+<div class="card">
+<h2>About EarnPulse</h2>
+<p>EarnPulse is a survey-rewards platform prototype. Real survey partnerships, verified rewards, privacy safeguards and legal approvals must be established before launching real transactions.</p>
+</div>
+</main>
+<script>
+let balance=0;
+const completed=new Set();
+function complete(amount,button){
+if(completed.has(button.parentElement.querySelector('h3').textContent)){
+alert("This demo survey has already been completed.");
+return;
+}
+completed.add(button.parentElement.querySelector('h3').textContent);
+balance+=amount;
+document.getElementById('balance').textContent="KSh "+balance;
+button.textContent="Completed";
+button.disabled=true;
+}
+function requestWithdrawal(){
+const phone=document.getElementById('phone').value.trim();
+const amount=Number(document.getElementById('withdraw').value);
+const message=document.getElementById('message');
+if(!/^07\d{8}$/.test(phone)){
+message.textContent="Enter a valid demo phone number beginning with 07.";
+return;
+}
+if(!Number.isFinite(amount)||amount<=0||amount>balance){
+message.textContent="Enter an amount within your demo balance.";
+return;
+}
+message.textContent="Demo request recorded. No real payment has been made.";
+}
+</script>
+</body>
+</html>
