@@ -111,7 +111,7 @@ async function loadDashboard(){
    "Profile could not be loaded.";
  }else{
   document.getElementById("memberName").textContent =
-   profile?.display_name || user.user_metadata?.display_name || "Member";
+   profile?.display_name || user.user_metadata?.display_name || "Admin";
  }
 
  const {data:surveys,error:surveyError} = await db
