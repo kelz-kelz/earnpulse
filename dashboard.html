@@ -102,7 +102,7 @@ async function loadDashboard(){
 
  const {data:profile,error:profileError} = await db
   .from("profiles")
-  .select("display_name")
+  .select("display_name, role")
   .eq("id",user.id)
   .maybeSingle();
 
