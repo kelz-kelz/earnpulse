@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EarnPulse Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:Arial;background:#081525;color:white;padding:20px}
+.box{background:#14283d;padding:18px;border-radius:12px;margin:15px 0}
+input,textarea,button{width:100%;padding:12px;margin:8px 0;border-radius:7px;box-sizing:border-box}
+input,textarea{background:#eaf0f5;border:0}
+button{background:#10b981;color:#062019;border:0;font-weight:bold}
+h1{color:#34d399}
+small{color:#aab9c8}
+</style>
+</head>
+<body>
+<h1>EarnPulse Admin</h1>
+<p>Survey Management Centre</p>
+
+<div class="box">
+<h3>Create a survey</h3>
+<input id="title" placeholder="Survey title">
+<textarea id="description" placeholder="Survey description"></textarea>
+<textarea id="questions" rows="6" placeholder='Questions JSON, e.g. [{"question":"Which network do you use?","type":"text"}]'></textarea>
+<button onclick="createSurvey()">Create survey</button>
+<p id="message"></p>
+</div>
+
+<div class="box">
+<h3>Existing surveys</h3>
+<div id="surveys">Loading surveys...</div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://dgbgvhrdzedtlkrntvkv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1gHSU6-oWGjoGwuEai_a5w_QQLZ_aVN";
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+async function checkAdmin(){
+ const {data:{session}} = await db.auth.getSession();
+ if(!session){location.href="./auth.html";return false;}
+
+ const {data,error} = await db.from("profiles")
+ .select("role").eq("id",session.user.id).single();
+
+ if(error || data.role !== "admin"){
+ document.body.innerHTML="<h2>Access denied</h2><p>Administrator access required.</p>";
+ return false;
+ }
+ return true;
+}
+
+async function createSurvey(){
+ const title=document.getElementById("title").value.trim();
+ const description=document.getElementById("description").value.trim();
+ const message=document.getElementById("message");
+
+ let questions;
+ try{questions=JSON.parse(document.getElementById("questions").value);}
+ catch(e){message.textContent="Please enter valid questions JSON.";return;}
+
+ if(!title || !Array.isArray(questions) || !questions.length){
+ message.textContent="Enter a title and at least one question.";return;
+ }
+
+ const {error}=await db.from("surveys").insert({
+ title,description,questions,status:"published"
+ });
+
+ if(error){message.textContent=error.message;return;}
+
+ message.textContent="Survey created successfully!";
+ document.getElementById("title").value="";
+ document.getElementById("description").value="";
+ document.getElementById("questions").value="";
+ loadSurveys();
+}
+
+async function loadSurveys(){
+ const {data,error}=await db.from("surveys")
+ .select("id,title,status,created_at").order("created_at",{ascending:false});
+
+ const area=document.getElementById("surveys");
+ if(error){area.textContent=error.message;return;}
+ area.innerHTML="";
+
+ data.forEach(s=>{
+ const div=document.createElement("div");
+ div.className="box";
+ const heading=document.createElement("h3");
+ heading.textContent=s.title;
+ const status=document.createElement("small");
+ status.textContent="Status: "+s.status;
+ div.append(heading,status);
+
+ const button=document.createElement("button");
+ button.textContent=s.status==="published"?"Close survey":"Publish survey";
+ button.onclick=()=>changeStatus(s.id,s.status);
+ div.append(button);
+ area.append(div);
+ });
+}
+
+async function changeStatus(id,status){
+ const next=status==="published"?"closed":"published";
+ const {error}=await db.from("surveys").update({status:next}).eq("id",id);
+ if(error){alert(error.message);return;}
+ loadSurveys();
+}
+
+(async()=>{
+ if(await checkAdmin()) loadSurveys();
+})();
+</script>
+</body>
+</html>
