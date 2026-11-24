@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EarnPulse Kenya | Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#071b2b;color:white;font-family:Arial,sans-serif}
+header{background:#102b40;padding:20px;display:flex;justify-content:space-between;align-items:center}
+.logo{color:#39d9a2;font-size:21px;font-weight:bold}
+button{background:#39d9a2;border:0;padding:12px 17px;border-radius:8px;font-weight:bold;cursor:pointer}
+main{max-width:900px;margin:auto;padding:20px}
+.welcome{margin:25px 0}
+.muted{color:#b8cbd7}
+.balance{background:linear-gradient(120deg,#087b60,#103d37);padding:25px;border-radius:15px;margin:20px 0}
+.balance h1{font-size:36px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.card{background:#102b40;padding:20px;border-radius:13px;margin-bottom:18px}
+.card h3{margin-top:0}
+.value{font-size:27px;font-weight:bold;color:#39d9a2}
+.survey{border-top:1px solid #34536a;padding:14px 0}
+.status{color:#f5c66a;font-size:13px}
+.notice{background:#253c4e;padding:15px;border-radius:10px;color:#d5e3eb;line-height:1.5}
+@media(max-width:500px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">EarnPulse Kenya</div>
+ <button id="logout">Logout</button>
+</header>
+
+<main>
+ <section class="welcome">
+  <h2>Welcome, <span id="memberName">Member</span> 👋</h2>
+  <p class="muted">Your EarnPulse member dashboard</p>
+ </section>
+
+ <section class="balance">
+  <p>Demo reward credits</p>
+  <h1>250 EP</h1>
+  <p>Demo only. Not real money or withdrawable cash.</p>
+ </section>
+
+ <section class="grid">
+  <div class="card">
+   <p class="muted">Available surveys</p>
+   <div class="value" id="surveyCount">0</div>
+  </div>
+  <div class="card">
+   <p class="muted">Completed surveys</p>
+   <div class="value" id="completedCount">0</div>
+  </div>
+ </section>
+
+ <section class="card">
+  <h3>My account</h3>
+  <p id="memberEmail" class="muted">Loading email...</p>
+  <p id="memberId" class="muted"></p>
+ </section>
+
+ <section class="card">
+  <h3>Available surveys</h3>
+  <div id="surveys" class="muted">Loading surveys...</div>
+ </section>
+
+ <section class="card">
+  <h3>M-Pesa withdrawals</h3>
+  <p class="status">Coming soon</p>
+  <div class="notice">
+   M-Pesa payouts are not yet active. They will only be enabled after payment-provider approval and funding of member rewards.
+  </div>
+ </section>
+
+ <p class="muted" id="message"></p>
+</main>
+
+<script>
+const SUPABASE_URL = "https://dgbgvhrdzedtlkrntvkv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1gHSU6-oWGjoGwuEai_a5w_QQLZ_aVN";
+
+const db = window.supabase.createClient(
+ SUPABASE_URL, SUPABASE_KEY
+);
+
+async function loadDashboard(){
+ const {data:{session},error} = await db.auth.getSession();
+
+ if(error || !session){
+  location.replace("./auth.html");
+  return;
+ }
+
+ const user = session.user;
+
+ document.getElementById("memberEmail").textContent = user.email;
+ document.getElementById("memberId").textContent =
+  "Member ID: " + user.id;
+
+ const {data:profile,error:profileError} = await db
+  .from("profiles")
+  .select("display_name")
+  .eq("id",user.id)
+  .maybeSingle();
+
+ if(profileError){
+  document.getElementById("message").textContent =
+   "Profile could not be loaded.";
+ }else{
+  document.getElementById("memberName").textContent =
+   profile?.display_name || user.user_metadata?.display_name || "Member";
+ }
+
+ const {data:surveys,error:surveyError} = await db
+  .from("surveys")
+  .select("id,title,description")
+  .eq("status","published");
+
+ const container = document.getElementById("surveys");
+
+ if(surveyError){
+  container.textContent = "Unable to load surveys.";
+  return;
+ }
+
+ document.getElementById("surveyCount").textContent =
+  surveys.length;
+
+ if(!surveys.length){
+  container.textContent = "No published surveys available yet.";
+  return;
+ }
+
+ container.innerHTML = "";
+
+ surveys.forEach(survey=>{
+  const item = document.createElement("div");
+  item.className = "survey";
+
+  const title = document.createElement("strong");
+  title.textContent = survey.title;
+
+  const description = document.createElement("p");
+  description.className = "muted";
+  description.textContent = survey.description || "";
+
+  item.append(title,description);
+  container.appendChild(item);
+ });
+}
+
+document.getElementById("logout").addEventListener("click",
+ async ()=>{
+  const {error} = await db.auth.signOut();
+  if(!error) location.replace("./auth.html");
+  else document.getElementById("message").textContent =
+   "Logout failed. Please try again.";
+ });
+
+loadDashboard();
+</script>
+</body>
+</html>
